@@ -1,4 +1,4 @@
-#link do desafio07: https://me315-unicamp.github.io/laboratorios/lab07.html
+#link do lab07: https://me315-unicamp.github.io/laboratorios/lab07.html
 
 ---
 title: "Lab07.rmd"
