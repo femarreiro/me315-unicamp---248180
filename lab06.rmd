@@ -1,0 +1,71 @@
+---
+title: "Lab06"
+author: "Fernanda Marreiro"
+date: ""
+output: html_document
+---
+#link do desafio 06: https://me315-unicamp.github.io/laboratorios/lab06.html
+
+```{r q1}
+install.packages("RSQLite")
+library(RSQLite)
+```
+
+```{r q1}
+path = '../dados'
+fname = "/Users/fernandamarreiro/Downloads/disco.db"
+```
+
+```{r q2}
+
+library(RSQLite)
+conn = dbConnect(SQLite(), fname)
+```
+
+```{r q3}
+dbListTables(conn)
+```
+
+```{r q4}
+dbListFields(conn, 'customers')
+```
+
+```{r q5}
+dbGetQuery(conn, 'SELECT COUNT(*) FROM customers')
+```
+
+```{r q6}
+dbGetQuery(conn, 'SELECT COUNT(*) FROM (SELECT DISTINCT country FROM customers)')
+```
+
+```{r q7}
+dbGetQuery(conn, 'SELECT DISTINCT country, COUNT(*) FROM customers GROUP BY country ORDER BY COUNT(*) DESC')
+```
+
+```{r q8}
+dbGetQuery(conn, 'SELECT DISTINCT country, COUNT(*) FROM customers GROUP BY country ORDER BY COUNT(*) DESC LIMIT 5')
+```
+
+```{r q9}
+dbGetQuery(conn, "SELECT DISTINCT country FROM customers WHERE country GLOB '??????'")
+```
+
+
+```{r q10}
+## Veja que eh um SELECT de SELECT
+## O SELECT interno identifica todas as invoices
+## de clientes brasileiros
+## O SELECT externo, por meio de INNER JOIN, identifica
+## as musicas presentes nestas invoices
+sql = paste("SELECT DISTINCT name FROM invoice_items",
+            "INNER JOIN tracks ON tracks.trackid=invoice_items.trackid",
+            "WHERE invoiceid IN",
+            "(SELECT DISTINCT invoiceid FROM customers",
+            "INNER JOIN invoices ON invoices.customerid=customers.customerid",
+            "WHERE country='Brazil')")
+dbGetQuery(conn, sql)
+```
+
+```{r q11, echo=TRUE}
+dbDisconnect(conn)
+```
