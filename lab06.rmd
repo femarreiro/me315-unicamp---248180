@@ -4,7 +4,7 @@ author: "Fernanda Marreiro"
 date: ""
 output: html_document
 ---
-#link do desafio 06: https://me315-unicamp.github.io/laboratorios/lab06.html
+#link do  lab06: https://me315-unicamp.github.io/laboratorios/lab06.html
 
 ```{r q1}
 install.packages("RSQLite")
