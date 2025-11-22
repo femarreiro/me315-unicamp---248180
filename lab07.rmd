@@ -1,0 +1,77 @@
+#link do lab07: https://me315-unicamp.github.io/laboratorios/lab07.html
+
+---
+title: "Lab07.rmd"
+author: "Fernanda Marreiro"
+date: ""
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r q2}
+library(RSQLite)
+conn = dbConnect(SQLite(), '/Users/fernandamarreiro/Downloads/archive (1)/database.sqlite3')
+``` 
+
+```{r}
+dbGetQuery(conn,
+           "SELECT DISTINCT(instructors.name) FROM instructors
+           INNER JOIN teachings
+           ON instructors.id=teachings.instructor_id
+           INNER JOIN sections
+           ON teachings.section_uuid=sections.uuid
+           INNER JOIN subject_memberships
+           ON subject_memberships.course_offering_uuid=sections.course_offering_uuid
+           INNER JOIN subjects
+           ON subject_memberships.subject_code=subjects.code
+           WHERE subjects.abbreviation='STAT'")
+dbGetQuery(conn,
+           "SELECT COUNT(DISTINCT(instructors.name)) FROM instructors
+           INNER JOIN teachings
+           ON instructors.id=teachings.instructor_id
+           INNER JOIN sections
+           ON teachings.section_uuid=sections.uuid
+           INNER JOIN subject_memberships
+           ON subject_memberships.course_offering_uuid=sections.course_offering_uuid
+           INNER JOIN subjects
+           ON subject_memberships.subject_code=subjects.code
+           WHERE subjects.abbreviation='STAT'")
+```
+
+```{r}
+dbExecute(conn,
+           "CREATE VIEW statprofs AS
+           SELECT DISTINCT instructors.name AS prof, courses.name AS course, course_offerings.course_uuid FROM instructors
+           INNER JOIN teachings
+           ON instructors.id=teachings.instructor_id
+           INNER JOIN sections
+           ON teachings.section_uuid=sections.uuid
+           INNER JOIN course_offerings
+           ON sections.course_offering_uuid=course_offerings.uuid
+           INNER JOIN courses
+           ON course_offerings.course_uuid=courses.uuid
+           INNER JOIN subject_memberships
+           ON subject_memberships.course_offering_uuid=sections.course_offering_uuid
+           INNER JOIN subjects
+           ON subject_memberships.subject_code=subjects.code
+           WHERE subjects.abbreviation='STAT'")
+blih = dbGetQuery(conn,
+           "SELECT DISTINCT instructors.name, sections.course_offering_uuid, sections.uuid, course_offerings.name AS course, a_count, ab_count, b_count, c_count, d_count, f_count
+           FROM instructors
+           INNER JOIN teachings
+           ON instructors.id=teachings.instructor_id
+           INNER JOIN sections
+           ON teachings.section_uuid=sections.uuid
+           INNER JOIN course_offerings
+           ON sections.course_offering_uuid=course_offerings.uuid
+           INNER JOIN grade_distributions
+           ON course_offerings.uuid=grade_distributions.course_offering_uuid
+           WHERE instructors.name IN (SELECT prof FROM statprofs) AND
+           course_offerings.course_uuid IN (SELECT course_uuid FROM statprofs)")
+```
+
+```{r q4, echo=TRUE}
+dbDisconnect(conn)
